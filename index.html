@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>crapps.uk</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #f5f3ee;
+    --surface: #ffffff;
+    --border: #e0ddd6;
+    --text: #1a1917;
+    --muted: #6b6860;
+    --accent: #2a5caa;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111110;
+      --surface: #1e1d1b;
+      --border: #2e2d2b;
+      --text: #f0ede8;
+      --muted: #7a7870;
+      --accent: #5b8dd9;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Mono', 'Courier New', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .site-name {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: clamp(42px, 8vw, 72px);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .site-name em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .tagline {
+    margin-top: 12px;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .apps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    width: 100%;
+    max-width: 860px;
+  }
+
+  .app-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px 28px 24px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .app-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--accent));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+  }
+
+  .app-card:hover { transform: translateY(-2px); border-color: var(--card-accent, var(--accent)); }
+  .app-card:hover::before { transform: scaleX(1); }
+
+  .app-card.passwords { --card-accent: #2a7a4f; }
+  .app-card.cd { --card-accent: #b85c00; }
+  .app-card.house { --card-accent: #2a5caa; }
+
+  .app-icon {
+    font-size: 28px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .app-name {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+
+  .app-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+  }
+
+  .app-url {
+    margin-top: auto;
+    padding-top: 16px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--card-accent, var(--accent));
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .app-url::after {
+    content: '→';
+    transition: transform 0.2s;
+  }
+
+  .app-card:hover .app-url::after { transform: translateX(4px); }
+
+  footer {
+    margin-top: 56px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-align: center;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="site-name">cr<em>apps</em>.uk</div>
+  <div class="tagline">Surprisingly useful compact apps</div>
+</header>
+
+<div class="apps">
+
+  <a class="app-card passwords" href="/passwords/">
+    <div class="app-icon">&#x1F511;</div>
+    <div class="app-name">Passwords</div>
+    <div class="app-desc">Personal password manager. Search, reveal, add and edit entries. Offline-capable PWA.</div>
+    <div class="app-url">Open app</div>
+  </a>
+
+  <a class="app-card cd" href="/cd-catalogue/">
+    <div class="app-icon">&#x1F3B5;</div>
+    <div class="app-name">CD Catalogue</div>
+    <div class="app-desc">Browse and manage your CD collection. Search by artist, title or genre.</div>
+    <div class="app-url">Open app</div>
+  </a>
+
+  <a class="app-card house" href="/house-sale/">
+    <div class="app-icon">&#x1F3E0;</div>
+    <div class="app-name">House Sale</div>
+    <div class="app-desc">Track tasks, documents and progress for selling your property.</div>
+    <div class="app-url">Open app</div>
+  </a>
+
+</div>
+
+<footer>Built with Claude &middot; crapps.uk</footer>
+
+</body>
+</html>
