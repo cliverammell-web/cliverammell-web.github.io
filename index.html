@@ -69,10 +69,16 @@
 
   .apps {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: 1fr;
     gap: 16px;
     width: 100%;
     max-width: 860px;
+  }
+
+  @media (min-width: 600px) {
+    .apps {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
   }
 
   .app-card {
@@ -290,7 +296,7 @@
 </div>
 
 <script>
-const PASSWORD = 'Betra3535!';
+const PASSWORD = 'YOUR_PASSWORD_HERE';
 const SESSION_KEY = 'crapps_auth';
 
 // Check if already authenticated this session
