@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="A small suite of personal web apps — including a classical CD catalogue with essays, reference guides and concert notes, a password manager, and a house sale tracker. Offline-capable PWAs.">
 <title>crapps.uk</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&display=swap');
@@ -278,7 +279,7 @@
   <a class="app-card cd" href="/cd-catalogue/">
     <div class="app-icon">&#x1F3B5;</div>
     <div class="app-name">CD Catalogue</div>
-    <div class="app-desc">Browse and manage your CD collection. Search by artist, title or genre.</div>
+    <div class="app-desc">Classical CD collection with 500+ recordings. Search by composer, artist or label. Essays, reference guides and concert notes. Offline-capable PWA.</div>
     <div class="app-url">Open app</div>
   </a>
 
@@ -296,10 +297,14 @@
 </div>
 
 <script>
-const PASSWORD = 'Betra3535!';
+const PASSWORD_HASH = 'eeccf9dd15e37e39f5a769c13ee075efda33841d34e09d038dcf4c2eddb5afb6';
 const SESSION_KEY = 'crapps_auth';
 
-// Check if already authenticated this session
+async function hashPassword(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
 if (sessionStorage.getItem(SESSION_KEY) === 'true') {
   unlock();
 }
@@ -309,9 +314,10 @@ document.getElementById('lock-input').addEventListener('keydown', e => {
   document.getElementById('lock-error').textContent = '';
 });
 
-function checkPassword() {
+async function checkPassword() {
   const val = document.getElementById('lock-input').value;
-  if (val === PASSWORD) {
+  const hash = await hashPassword(val);
+  if (hash === PASSWORD_HASH) {
     sessionStorage.setItem(SESSION_KEY, 'true');
     unlock();
   } else {
