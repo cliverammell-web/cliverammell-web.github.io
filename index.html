@@ -246,9 +246,64 @@
   }
 
   #main-content { display: none; }
+
+  .change-pw-link {
+    margin-top: 20px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+  }
+
+  .change-pw-link:hover { color: var(--accent); }
+
+  /* Change password overlay */
+  #change-pw-screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    padding: 40px 24px;
+  }
+
+  #change-pw-screen .lock-title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: clamp(28px, 5vw, 44px);
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  #change-pw-screen .lock-sub {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 40px;
+  }
 </style>
 </head>
 <body>
+
+<div id="change-pw-screen">
+  <div class="lock-title">cr<em>apps</em>.uk</div>
+  <div class="lock-sub" id="change-pw-sub">Enter current password</div>
+  <div class="lock-form">
+    <input type="password" id="change-pw-input" placeholder="password" autocomplete="off" autocorrect="off">
+    <input type="password" id="change-pw-confirm" placeholder="confirm new password" autocomplete="off" autocorrect="off" style="display:none">
+    <div class="lock-error" id="change-pw-error"></div>
+    <button id="change-pw-btn" onclick="changePasswordStep()">Continue</button>
+    <button onclick="cancelChangePassword()" style="background:var(--surface);color:var(--muted);border:1.5px solid var(--border);">Cancel</button>
+  </div>
+</div>
 
 <div id="lock-screen">
   <div class="lock-title">cr<em>apps</em>.uk</div>
@@ -269,12 +324,12 @@
 
 <div class="apps">
 
-  <div class="app-card passwords">
+  <a class="app-card passwords" href="/passwords/">
     <div class="app-icon">&#x1F511;</div>
     <div class="app-name">Passwords</div>
     <div class="app-desc">Personal password manager. Search, reveal, add and edit entries. Offline-capable PWA.</div>
-    <div class="app-url">Private</div>
-  </div>
+    <div class="app-url">Open app</div>
+  </a>
 
   <a class="app-card cd" href="/cd-catalogue/">
     <div class="app-icon">&#x1F3B5;</div>
@@ -293,20 +348,28 @@
 </div>
 
 <footer>Built with Claude &middot; crapps.uk</footer>
+<button class="change-pw-link" onclick="showChangePassword()">&#x1F512; Change Password</button>
 
 </div>
 
 <script>
-const PASSWORD_HASH = 'f82a7d02e8f0a728b7c3e958c278745cb224d3d7b2e3b84c0ecafc5511fdbdb7';
-const SESSION_KEY = 'crapps_auth';
+const DEFAULT_HASH = 'f82a7d02e8f0a728b7c3e958c278745cb224d3d7b2e3b84c0ecafc5511fdbdb7';
+const SESSION_KEY  = 'crapps_auth';
+const PW_STORE_KEY = 'crapps_pw_hash';
 
 async function hashPassword(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
+function getHash() {
+  return localStorage.getItem(PW_STORE_KEY) || DEFAULT_HASH;
+}
+
 if (sessionStorage.getItem(SESSION_KEY) === 'true') {
   unlock();
+} else {
+  setTimeout(() => document.getElementById('lock-input').focus(), 50);
 }
 
 document.getElementById('lock-input').addEventListener('keydown', e => {
@@ -315,9 +378,9 @@ document.getElementById('lock-input').addEventListener('keydown', e => {
 });
 
 async function checkPassword() {
-  const val = document.getElementById('lock-input').value;
+  const val  = document.getElementById('lock-input').value;
   const hash = await hashPassword(val);
-  if (hash === PASSWORD_HASH) {
+  if (hash === getHash()) {
     sessionStorage.setItem(SESSION_KEY, 'true');
     unlock();
   } else {
@@ -329,8 +392,78 @@ async function checkPassword() {
 
 function unlock() {
   document.getElementById('lock-screen').style.display = 'none';
+  document.getElementById('change-pw-screen').style.display = 'none';
   document.getElementById('main-content').style.display = 'flex';
   document.getElementById('main-content').style.flexDirection = 'column';
   document.getElementById('main-content').style.alignItems = 'center';
+}
+
+// ── CHANGE PASSWORD ───────────────────────────────────────────────────────────
+let changePwStep = 'verify'; // 'verify' | 'newpw'
+
+function showChangePassword() {
+  changePwStep = 'verify';
+  document.getElementById('change-pw-sub').textContent = 'Enter current password';
+  document.getElementById('change-pw-input').value = '';
+  document.getElementById('change-pw-confirm').value = '';
+  document.getElementById('change-pw-confirm').style.display = 'none';
+  document.getElementById('change-pw-input').placeholder = 'current password';
+  document.getElementById('change-pw-btn').textContent = 'Continue';
+  document.getElementById('change-pw-error').textContent = '';
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('change-pw-screen').style.display = 'flex';
+  setTimeout(() => document.getElementById('change-pw-input').focus(), 50);
+}
+
+function cancelChangePassword() {
+  document.getElementById('change-pw-screen').style.display = 'none';
+  unlock();
+}
+
+document.getElementById('change-pw-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') changePasswordStep();
+  document.getElementById('change-pw-error').textContent = '';
+});
+
+document.getElementById('change-pw-confirm').addEventListener('keydown', e => {
+  if (e.key === 'Enter') changePasswordStep();
+  document.getElementById('change-pw-error').textContent = '';
+});
+
+async function changePasswordStep() {
+  const input   = document.getElementById('change-pw-input').value;
+  const confirm = document.getElementById('change-pw-confirm').value;
+  const errEl   = document.getElementById('change-pw-error');
+
+  if (changePwStep === 'verify') {
+    const hash = await hashPassword(input);
+    if (hash !== getHash()) {
+      errEl.textContent = 'Incorrect current password';
+      document.getElementById('change-pw-input').value = '';
+      document.getElementById('change-pw-input').focus();
+      return;
+    }
+    // Current password correct — ask for new one
+    changePwStep = 'newpw';
+    document.getElementById('change-pw-sub').textContent = 'Enter new password';
+    document.getElementById('change-pw-input').value = '';
+    document.getElementById('change-pw-input').placeholder = 'new password';
+    document.getElementById('change-pw-confirm').style.display = 'block';
+    document.getElementById('change-pw-btn').textContent = 'Save New Password';
+    errEl.textContent = '';
+    document.getElementById('change-pw-input').focus();
+
+  } else if (changePwStep === 'newpw') {
+    if (!input) { errEl.textContent = 'Please enter a new password'; return; }
+    if (input !== confirm) { errEl.textContent = 'Passwords do not match'; return; }
+    const newHash = await hashPassword(input);
+    localStorage.setItem(PW_STORE_KEY, newHash);
+    cancelChangePassword();
+    // Brief confirmation
+    const footer = document.querySelector('footer');
+    const orig = footer.innerHTML;
+    footer.innerHTML = 'Password changed successfully ✓';
+    setTimeout(() => footer.innerHTML = orig, 2500);
+  }
 }
 </script>
